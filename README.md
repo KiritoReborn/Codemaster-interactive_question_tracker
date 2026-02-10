@@ -67,7 +67,7 @@ CodeMaster is a single-page web application for managing hierarchical DSA questi
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/codemaster.git
+git clone https://github.com/KiritoReborn/Codemaster-interactive_question_tracker.git
 cd codemaster
 
 # Install dependencies
@@ -178,7 +178,5 @@ This project is licensed under the MIT License.
 <div align="center">
 
 **Made with ❤️ for the Internship Assignment**
-
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/codemaster?style=social)](https://github.com/yourusername/codemaster/stargazers)
 
 </div>
