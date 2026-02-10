@@ -10,7 +10,7 @@
 
 **A premium, AI-powered DSA tracking application with glassmorphism UI, confetti celebrations, and intelligent progress analytics**
 
-[🌐 Live Demo](YOUR_DEPLOYMENT_LINK_HERE) • [📖 Documentation](#features) • [🚀 Quick Start](#getting-started)
+[🌐 Live Demo](https://codemaster-interactive-question-tra.vercel.app) • [📖 Documentation](#features) • [🚀 Quick Start](#getting-started)
 
 </div>
 
@@ -243,61 +243,6 @@ npm run preview
 
 ---
 
-## 📦 Deployment
-
-### Deploying to Vercel (Recommended)
-
-1. **Push your code to GitHub**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   ```
-
-2. **Import to Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Click "New Project"
-   - Import your GitHub repository
-
-3. **Configure Environment Variables**
-   
-   In Vercel Project Settings → Environment Variables, add:
-   - **Key**: `VITE_API_KEY`
-   - **Value**: Your Gemini API Key
-   - **Environment**: Production, Preview, Development
-
-4. **Deploy**
-   
-   Click "Deploy" and wait for the build to complete!
-
-### Deploying to Netlify
-
-1. **Build the project**
-   ```bash
-   npm run build
-   ```
-
-2. **Deploy to Netlify**
-   ```bash
-   npm install -g netlify-cli
-   netlify deploy --prod
-   ```
-
-3. **Set Environment Variables**
-   
-   In Netlify Site Settings → Environment Variables:
-   - Add `VITE_API_KEY` with your Gemini API key
-
-### Other Platforms
-
-CodeMaster can be deployed to any static hosting service:
-- GitHub Pages
-- Cloudflare Pages
-- AWS S3 + CloudFront
-- Firebase Hosting
-
----
-
 ## 🎯 Usage Guide
 
 ### Getting Started with CodeMaster
@@ -340,88 +285,6 @@ CodeMaster can be deployed to any static hosting service:
 - `Ctrl/Cmd + K` - Focus search (coming soon)
 - `Ctrl/Cmd + B` - Toggle bookmark filter (coming soon)
 - `Ctrl/Cmd + /` - Open AI assistant (coming soon)
-
----
-
-## 🎨 Customization
-
-### Adding Your Own Problem Sets
-
-Edit `data.ts` to add custom problem sets:
-
-```typescript
-export const initialData: Topic[] = [
-  {
-    id: 'topic-custom',
-    title: 'My Custom Topic',
-    isExpanded: true,
-    subTopics: [
-      {
-        id: 'sub-custom',
-        title: 'Custom Sub-Topic',
-        questions: [
-          {
-            id: 'q-custom',
-            title: 'Custom Problem',
-            url: 'https://leetcode.com/problems/...',
-            difficulty: 'Medium',
-            status: 'Todo',
-            isBookmarked: false,
-            description: 'Problem description here'
-          }
-        ]
-      }
-    ]
-  }
-];
-```
-
-### Customizing Colors
-
-Edit the Tailwind config in `index.html`:
-
-```javascript
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: '#your-color',
-        secondary: '#your-color',
-        // ... more colors
-      }
-    }
-  }
-}
-```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how you can help:
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add some AmazingFeature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow TypeScript best practices
-- Maintain the existing code style
-- Add comments for complex logic
-- Test your changes thoroughly
-- Update documentation as needed
 
 ---
 
@@ -469,10 +332,10 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📧 Contact
 
-**Developer**: [Your Name]  
-**Email**: your.email@example.com  
-**LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/yourprofile)  
-**GitHub**: [@yourusername](https://github.com/yourusername)
+**Developer**: Raghu 
+**Email**: raghu.p0808@gmail.com 
+**LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/jaya-raghunandhan-reddy-p-2006aug)  
+**GitHub**: [@yourusername](https://github.com/KiritoReborn)
 
 ---
 
