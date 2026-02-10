@@ -30,7 +30,9 @@ export const ChatBot: React.FC = () => {
 
   // Initialize Chat Session
   useEffect(() => {
-    const apiKey = process.env.API_KEY;
+    // Check for VITE_API_KEY (Vercel/Vite) first, then fallback to process.env
+    // @ts-ignore
+    const apiKey = import.meta.env?.VITE_API_KEY || process.env.API_KEY;
     
     if (!apiKey) {
       setHasApiKey(false);
@@ -38,7 +40,7 @@ export const ChatBot: React.FC = () => {
         ...prev, 
         { 
           role: 'model', 
-          text: "Configuration Error: Gemini API Key is missing.\n\nPlease add `API_KEY` to your environment variables or `.env` file to enable the chat features.",
+          text: "Configuration Error: Gemini API Key is missing.\n\nIf you are deploying to Vercel, please set the Environment Variable `VITE_API_KEY` in your project settings.",
           isError: true
         }
       ]);
