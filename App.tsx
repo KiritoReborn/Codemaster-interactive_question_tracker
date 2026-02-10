@@ -38,7 +38,8 @@ import {
   Moon,
   Sun,
   Menu,
-  LogOut
+  LogOut,
+  Pencil
 } from 'lucide-react';
 import { AddModal } from './components/AddModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
@@ -51,7 +52,8 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent
+  DragEndEvent,
+  DragOverEvent
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -162,7 +164,7 @@ const PerformanceView = ({ stats }: { stats: any }) => {
             <div className="h-full bg-primary shadow-sm dark:shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-1000 ease-out" style={{ width: `${(stats.solvedQuestions / stats.totalQuestions) * 100}%` }}></div>
           </div>
         </div>
-
+        {/* ... (Other Stats Cards Remain Same) ... */}
         <div className="glass-card p-6 rounded-3xl bg-gradient-to-br from-easy/10 to-transparent border-easy/20 relative group overflow-hidden">
            <div className="absolute -right-10 -top-10 w-32 h-32 bg-easy/10 dark:bg-easy/20 rounded-full blur-3xl group-hover:bg-easy/20 dark:group-hover:bg-easy/30 transition-all"></div>
           <div className="flex items-center gap-4 mb-4 relative z-10">
@@ -202,36 +204,20 @@ const PerformanceView = ({ stats }: { stats: any }) => {
           </div>
         </div>
       </div>
-
-      <div className="glass-card p-6 md:p-8 rounded-3xl border-slate-200 dark:border-slate-800/50">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-           <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-             <BarChart2 className="text-primary" />
-             Detailed Analytics
-           </h3>
-           <div className="flex gap-2">
-             <span className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-white/5 text-xs font-medium text-slate-500 dark:text-slate-400">Weekly</span>
-             <span className="px-3 py-1 rounded-lg bg-primary/20 text-xs font-medium text-primary">Monthly</span>
-           </div>
-        </div>
-        <div className="h-64 md:h-80 w-full flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-black/20 text-slate-400 dark:text-slate-500 relative overflow-hidden group">
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-           <p className="z-10 font-mono text-xs md:text-sm tracking-widest text-center px-4">CHART_VISUALIZATION_MODULE_NOT_LOADED</p>
-        </div>
-      </div>
     </div>
   );
 };
 
-// --- Sortable Item Component ---
+// --- Sortable Item Components ---
 
-interface SortableTopicItemProps {
+interface SortableItemProps {
   id: string;
-  children: (listeners: any) => React.ReactNode;
+  data: any;
+  children: (listeners: any, attributes: any) => React.ReactNode;
   key?: React.Key;
 }
 
-const SortableTopicItem = ({ id, children }: SortableTopicItemProps) => {
+const SortableItem = ({ id, data, children }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -239,19 +225,19 @@ const SortableTopicItem = ({ id, children }: SortableTopicItemProps) => {
     transform,
     transition,
     isDragging
-  } = useSortable({ id });
+  } = useSortable({ id, data });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.3 : 1,
     zIndex: isDragging ? 50 : 'auto',
     position: 'relative' as const,
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} className="touch-none">
-      {children(listeners)}
+    <div ref={setNodeRef} style={style} className="touch-none">
+      {children(listeners, attributes)}
     </div>
   );
 };
@@ -263,32 +249,60 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
   const [expandedDescId, setExpandedDescId] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // Desktop sidebar state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
   const [modalConfig, setModalConfig] = useState<{
     type: 'topic' | 'subTopic' | 'question';
     title: string;
     topicId?: string;
     subTopicId?: string;
-  }>({ type: 'topic', title: '' });
+    questionId?: string;
+    initialData?: any;
+    mode: 'create' | 'edit';
+  }>({ type: 'topic', title: '', mode: 'create' });
 
-  // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteConfig, setDeleteConfig] = useState<{
-    type: 'topic' | 'question';
+    type: 'topic' | 'subTopic' | 'question';
     title: string;
     topicId: string;
     subTopicId?: string;
     questionId?: string;
   } | null>(null);
 
+  // Stats calculation
+  const stats = useMemo(() => {
+    let totalQuestions = 0;
+    let solvedQuestions = 0;
+    let easy = 0;
+    let medium = 0;
+    let hard = 0;
+
+    store.topics.forEach(topic => {
+      topic.subTopics.forEach(sub => {
+        sub.questions.forEach(q => {
+          totalQuestions++;
+          if (q.status === 'Solved') {
+            solvedQuestions++;
+            if (q.difficulty === 'Easy') easy++;
+            if (q.difficulty === 'Medium') medium++;
+            if (q.difficulty === 'Hard') hard++;
+          }
+        });
+      });
+    });
+
+    return { totalQuestions, solvedQuestions, easy, medium, hard };
+  }, [store.topics]);
+
   // Confetti Logic
   const [completedTopics, setCompletedTopics] = useState<Set<string>>(new Set());
   const isFirstRender = useRef(true);
 
   useEffect(() => {
+    // ... (Confetti logic remains same)
     const newCompleted = new Set<string>();
-    
     store.topics.forEach(topic => {
       let total = 0;
       let solved = 0;
@@ -296,7 +310,6 @@ function App() {
         total += st.questions.length;
         solved += st.questions.filter(q => q.status === 'Solved').length;
       });
-      
       if (total > 0 && total === solved) {
         newCompleted.add(topic.id);
       }
@@ -308,53 +321,13 @@ function App() {
       return;
     }
 
-    // Check if any *new* topic is completed
     const hasNewCompletion = Array.from(newCompleted).some(id => !completedTopics.has(id));
-
     if (hasNewCompletion) {
-       // Fire confetti with a nice burst effect
-      const count = 200;
-      const defaults = {
-        origin: { y: 0.7 },
-        zIndex: 100
-      };
-
-      function fire(particleRatio: number, opts: any) {
-        confetti({
-          ...defaults,
-          ...opts,
-          particleCount: Math.floor(count * particleRatio)
-        });
-      }
-
-      fire(0.25, {
-        spread: 26,
-        startVelocity: 55,
-      });
-      fire(0.2, {
-        spread: 60,
-      });
-      fire(0.35, {
-        spread: 100,
-        decay: 0.91,
-        scalar: 0.8
-      });
-      fire(0.1, {
-        spread: 120,
-        startVelocity: 25,
-        decay: 0.92,
-        scalar: 1.2
-      });
-      fire(0.1, {
-        spread: 120,
-        startVelocity: 45,
-      });
+      confetti({ particleCount: 150, spread: 60 });
     }
-
     setCompletedTopics(newCompleted);
   }, [store.topics]);
 
-  // Sync Theme with HTML class
   useEffect(() => {
     if (store.theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -378,60 +351,123 @@ function App() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
-    if (active.id !== over?.id) {
+    if (!over) return;
+    if (active.id === over.id) return;
+
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
+
+    // Reorder Topics
+    if (activeType === 'topic' && overType === 'topic') {
       const oldIndex = store.topics.findIndex((t) => t.id === active.id);
-      const newIndex = store.topics.findIndex((t) => t.id === over?.id);
-      
-      if (oldIndex !== -1 && newIndex !== -1) {
-        store.reorderTopics(oldIndex, newIndex);
+      const newIndex = store.topics.findIndex((t) => t.id === over.id);
+      store.reorderTopics(oldIndex, newIndex);
+    } 
+    // Reorder SubTopics
+    else if (activeType === 'subTopic' && overType === 'subTopic') {
+       const topicId = active.data.current?.topicId;
+       const targetTopicId = over.data.current?.topicId;
+       
+       if (topicId === targetTopicId && topicId) {
+         const topic = store.topics.find(t => t.id === topicId);
+         if (topic) {
+           const oldIndex = topic.subTopics.findIndex(st => st.id === active.id);
+           const newIndex = topic.subTopics.findIndex(st => st.id === over.id);
+           store.reorderSubTopics(topicId, oldIndex, newIndex);
+         }
+       }
+    }
+    // Reorder Questions
+    else if (activeType === 'question' && overType === 'question') {
+      const subTopicId = active.data.current?.subTopicId;
+      const targetSubTopicId = over.data.current?.subTopicId;
+      const topicId = active.data.current?.topicId;
+
+      if (subTopicId === targetSubTopicId && subTopicId && topicId) {
+        const topic = store.topics.find(t => t.id === topicId);
+        const subTopic = topic?.subTopics.find(st => st.id === subTopicId);
+        if (subTopic) {
+          const oldIndex = subTopic.questions.findIndex(q => q.id === active.id);
+          const newIndex = subTopic.questions.findIndex(q => q.id === over.id);
+          store.reorderQuestions(topicId, subTopicId, oldIndex, newIndex);
+        }
       }
     }
   };
 
-  // Compute Stats
-  const stats = useMemo(() => {
-    let totalQuestions = 0;
-    let solvedQuestions = 0;
-    let easy = 0, medium = 0, hard = 0;
-    
-    store.topics.forEach(t => {
-      t.subTopics.forEach(st => {
-        st.questions.forEach(q => {
-          totalQuestions++;
-          if (q.status === 'Solved') solvedQuestions++;
-          if (q.difficulty === 'Easy') easy++;
-          if (q.difficulty === 'Medium') medium++;
-          if (q.difficulty === 'Hard') hard++;
-        });
-      });
-    });
-
-    return { totalQuestions, solvedQuestions, easy, medium, hard };
-  }, [store.topics]);
-
   // Modals Handlers
   const openAddTopic = () => {
-    setModalConfig({ type: 'topic', title: 'Create New Topic' });
+    setModalConfig({ type: 'topic', title: 'Create New Topic', mode: 'create' });
     setIsModalOpen(true);
   };
 
   const openAddSubTopic = (topicId: string) => {
-    setModalConfig({ type: 'subTopic', title: 'Add Sub-Topic', topicId });
+    setModalConfig({ type: 'subTopic', title: 'Add Sub-Topic', topicId, mode: 'create' });
     setIsModalOpen(true);
   };
 
   const openAddQuestion = (topicId: string, subTopicId: string) => {
-    setModalConfig({ type: 'question', title: 'Add New Question', topicId, subTopicId });
+    setModalConfig({ type: 'question', title: 'Add New Question', topicId, subTopicId, mode: 'create' });
     setIsModalOpen(true);
   };
 
-  const handleConfirmAdd = (data: any) => {
-    if (modalConfig.type === 'topic') {
-      store.addTopic(data.title);
-    } else if (modalConfig.type === 'subTopic' && modalConfig.topicId) {
-      store.addSubTopic(modalConfig.topicId, data.title);
-    } else if (modalConfig.type === 'question' && modalConfig.topicId && modalConfig.subTopicId) {
-      store.addQuestion(modalConfig.topicId, modalConfig.subTopicId, data);
+  // Edit Handlers
+  const openEditTopic = (e: React.MouseEvent, topic: any) => {
+    e.stopPropagation();
+    setModalConfig({ 
+      type: 'topic', 
+      title: 'Edit Topic', 
+      topicId: topic.id, 
+      initialData: { title: topic.title }, 
+      mode: 'edit' 
+    });
+    setIsModalOpen(true);
+  };
+
+  const openEditSubTopic = (topicId: string, subTopic: any) => {
+    setModalConfig({ 
+      type: 'subTopic', 
+      title: 'Edit Sub-Topic', 
+      topicId, 
+      subTopicId: subTopic.id, 
+      initialData: { title: subTopic.title }, 
+      mode: 'edit' 
+    });
+    setIsModalOpen(true);
+  };
+
+  const openEditQuestion = (e: React.MouseEvent, topicId: string, subTopicId: string, question: any) => {
+    e.stopPropagation();
+    setModalConfig({ 
+      type: 'question', 
+      title: 'Edit Question', 
+      topicId, 
+      subTopicId, 
+      questionId: question.id, 
+      initialData: question, 
+      mode: 'edit' 
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleModalSubmit = (data: any) => {
+    if (modalConfig.mode === 'create') {
+      if (modalConfig.type === 'topic') {
+        store.addTopic(data.title);
+      } else if (modalConfig.type === 'subTopic' && modalConfig.topicId) {
+        store.addSubTopic(modalConfig.topicId, data.title);
+      } else if (modalConfig.type === 'question' && modalConfig.topicId && modalConfig.subTopicId) {
+        store.addQuestion(modalConfig.topicId, modalConfig.subTopicId, data);
+      }
+    } else {
+      // Edit Mode
+       if (modalConfig.type === 'topic' && modalConfig.topicId) {
+        store.updateTopic(modalConfig.topicId, data.title);
+      } else if (modalConfig.type === 'subTopic' && modalConfig.topicId && modalConfig.subTopicId) {
+        store.updateSubTopic(modalConfig.topicId, modalConfig.subTopicId, data.title);
+      } else if (modalConfig.type === 'question' && modalConfig.topicId && modalConfig.subTopicId && modalConfig.questionId) {
+        store.updateQuestion(modalConfig.topicId, modalConfig.subTopicId, modalConfig.questionId, data);
+      }
     }
   };
 
@@ -441,6 +477,16 @@ function App() {
       type: 'topic',
       title: topic.title,
       topicId: topic.id
+    });
+    setIsDeleteModalOpen(true);
+  };
+
+  const requestDeleteSubTopic = (topicId: string, subTopic: any) => {
+    setDeleteConfig({
+      type: 'subTopic',
+      title: subTopic.title,
+      topicId: topicId,
+      subTopicId: subTopic.id
     });
     setIsDeleteModalOpen(true);
   };
@@ -461,6 +507,8 @@ function App() {
     
     if (deleteConfig.type === 'topic') {
       store.deleteTopic(deleteConfig.topicId);
+    } else if (deleteConfig.type === 'subTopic' && deleteConfig.subTopicId) {
+      store.deleteSubTopic(deleteConfig.topicId, deleteConfig.subTopicId);
     } else if (deleteConfig.type === 'question' && deleteConfig.subTopicId && deleteConfig.questionId) {
       store.deleteQuestion(deleteConfig.topicId, deleteConfig.subTopicId, deleteConfig.questionId);
     }
@@ -468,12 +516,12 @@ function App() {
     setDeleteConfig(null);
   };
 
-  // Navigation Helper
+  // Navigation Helper (No changes needed)
   const NavItem = ({ id, label, icon: Icon, colorClass }: { id: ViewType, label: string, icon: any, colorClass: string }) => (
     <button 
       onClick={() => {
         store.setActiveView(id);
-        setIsSidebarOpen(false); // Close sidebar on selection
+        setIsSidebarOpen(false);
       }}
       title={isSidebarCollapsed ? label : undefined}
       className={`relative w-full flex items-center ${isSidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-4'} py-3.5 rounded-xl transition-all duration-300 group overflow-hidden ${
@@ -510,8 +558,7 @@ function App() {
         transform transition-all duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        
-        {/* Toggle Button (Desktop Only) */}
+        {/* Toggle Button */}
         <button 
           onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           className="hidden md:flex absolute -right-3 top-10 w-6 h-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full items-center justify-center text-slate-500 hover:text-primary transition-colors shadow-sm z-50 hover:scale-110"
@@ -532,7 +579,7 @@ function App() {
                 <h1 className="text-xl font-display font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-1 whitespace-nowrap">
                   Code<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Master</span>
                 </h1>
-                <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">v2.0.4 • Beta</p>
+                <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">v2.1.0 • Pro</p>
               </div>
             )}
           </div>
@@ -564,8 +611,8 @@ function App() {
           </div>
         </nav>
 
+        {/* Footer actions */}
         <div className="p-6 border-t border-slate-200 dark:border-white/5">
-          {/* Theme Toggle */}
           <button 
             onClick={() => store.setTheme(store.theme === 'dark' ? 'light' : 'dark')}
             title={isSidebarCollapsed ? "Toggle Theme" : undefined}
@@ -585,8 +632,8 @@ function App() {
               </>
             )}
           </button>
-
-          <div className={`glass-card p-3 rounded-2xl flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-4'} hover:border-primary/30 transition-colors group cursor-pointer bg-white/50 dark:bg-transparent`}>
+          
+           <div className={`glass-card p-3 rounded-2xl flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-4'} hover:border-primary/30 transition-colors group cursor-pointer bg-white/50 dark:bg-transparent`}>
             <div className="relative flex-shrink-0">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 border border-slate-200 dark:border-white/10 overflow-hidden">
                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" className="w-full h-full" />
@@ -610,11 +657,11 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full min-w-0">
-        {/* Header */}
+        {/* Header (Same as before) */}
         <header className="h-auto md:h-24 glass-panel border-b-0 border-r-0 border-l-0 border-slate-200 dark:border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between px-4 py-4 md:px-10 flex-shrink-0 z-10 gap-4">
-          <div className="flex items-center justify-between w-full md:w-auto">
+           {/* ... Header Content ... */}
+           <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-4">
-              {/* Mobile Menu Button */}
               <button 
                 onClick={() => setIsSidebarOpen(true)}
                 className="md:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg"
@@ -628,18 +675,13 @@ function App() {
                 {store.activeView === 'babbar' && 'Love Babbar 450'}
                 {store.activeView === 'performance' && 'Performance Analytics'}
               </h2>
-              {store.activeView !== 'performance' && (
-                 <div className="hidden sm:block px-3 py-1 rounded-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-                    DSA Tracker
-                 </div>
-              )}
             </div>
           </div>
 
           {store.activeView !== 'performance' && (
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-8 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-              <div className="flex items-center gap-3 bg-white/50 dark:bg-black/20 p-1.5 rounded-2xl border border-slate-200 dark:border-white/5 flex-shrink-0">
-                 {/* Difficulty Filter */}
+               {/* Filters and Search - same as original */}
+               <div className="flex items-center gap-3 bg-white/50 dark:bg-black/20 p-1.5 rounded-2xl border border-slate-200 dark:border-white/5 flex-shrink-0">
                  <div className="relative">
                    <select
                      value={store.difficultyFilter}
@@ -656,7 +698,6 @@ function App() {
 
                  <div className="w-px h-4 bg-slate-300 dark:bg-slate-700"></div>
 
-                 {/* Bookmark Toggle */}
                  <button 
                   onClick={() => store.setShowBookmarkedOnly(!store.showBookmarkedOnly)}
                   className={`p-2 rounded-lg transition-all ${
@@ -669,7 +710,6 @@ function App() {
                   <Bookmark size={18} fill={store.showBookmarkedOnly ? "currentColor" : "none"} />
                 </button>
 
-                 {/* Search */}
                  <div className="relative group hidden sm:block">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <Search size={16} className="text-slate-400 dark:text-slate-500 group-focus-within:text-primary transition-colors" />
@@ -698,13 +738,6 @@ function App() {
           ) : (
             <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-6 pb-32">
               
-              {store.activeView !== 'striver' && store.topics.length > 0 && (
-                <div className="p-4 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/20 text-primary-700 dark:text-primary-200 text-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-4">
-                   <div className="p-2 rounded-lg bg-primary/20 text-primary"><Database size={16} /></div>
-                   <span><strong>Data Source:</strong> Loaded Striver's A2Z DSA Sheet from provided dataset.</span>
-                </div>
-              )}
-
               <DndContext 
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -715,6 +748,7 @@ function App() {
                   strategy={verticalListSortingStrategy}
                 >
                   {store.topics.map((topic, index) => {
+                    // Filter Logic
                     const filteredSubTopics = topic.subTopics.map(st => ({
                       ...st,
                       questions: st.questions.filter(q => {
@@ -736,10 +770,11 @@ function App() {
                     const topicProgress = topicTotal === 0 ? 0 : Math.round((topicSolved / topicTotal) * 100);
 
                     return (
-                      <SortableTopicItem 
+                      <SortableItem 
                         key={topic.id} 
                         id={topic.id}
-                        children={(dragListeners) => (
+                        data={{ type: 'topic' }}
+                        children={(dragListeners, dragAttributes) => (
                           <div className="glass-card rounded-2xl group/topic border-l-4 border-l-transparent hover:border-l-primary transition-all duration-300">
                           {/* Topic Header */}
                           <div 
@@ -752,6 +787,7 @@ function App() {
                                 className="hidden md:flex flex-col gap-1 opacity-0 group-hover/topic:opacity-100 transition-opacity" 
                                 onClick={e => e.stopPropagation()}
                                 {...dragListeners}
+                                {...dragAttributes}
                               >
                                 <div className="cursor-grab active:cursor-grabbing text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-white p-1 rounded hover:bg-slate-100 dark:hover:bg-white/10">
                                   <GripVertical size={18} />
@@ -765,6 +801,13 @@ function App() {
                                 <div className="flex-1 overflow-hidden">
                                   <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 mb-1 md:mb-2">
                                       <h3 className="text-base md:text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover/topic:text-primary transition-colors truncate">{topic.title}</h3>
+                                      {/* Edit Topic Button */}
+                                      <button 
+                                        onClick={(e) => openEditTopic(e, topic)} 
+                                        className="opacity-0 group-hover/topic:opacity-100 p-1 text-slate-400 hover:text-primary transition-opacity"
+                                      >
+                                        <Pencil size={12} />
+                                      </button>
                                       <span className="self-start px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/5 whitespace-nowrap">{topicTotal} Questions</span>
                                   </div>
                                   
@@ -799,162 +842,214 @@ function App() {
                                     <p className="text-sm font-medium">No matching questions found.</p>
                                 </div>
                               ) : (
-                                filteredSubTopics.map(subTopic => {
+                                <SortableContext items={filteredSubTopics.map(st => st.id)} strategy={verticalListSortingStrategy}>
+                                {filteredSubTopics.map(subTopic => {
                                   const originalSubTopic = topic.subTopics.find(t => t.id === subTopic.id) || subTopic;
                                   const subTopicTotal = originalSubTopic.questions.length;
                                   const subTopicSolved = originalSubTopic.questions.filter(q => q.status === 'Solved').length;
                                   const subTopicProgress = subTopicTotal === 0 ? 0 : Math.round((subTopicSolved / subTopicTotal) * 100);
 
                                   return (
-                                    <div key={subTopic.id} className="border-b border-slate-100 dark:border-white/5 last:border-0">
-                                      {/* SubTopic Header */}
-                                      <div className="px-4 py-3 md:px-5 md:py-3 bg-slate-100/50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/5 flex items-center justify-between group/sub">
-                                        <div className="flex items-center gap-2 md:gap-4 pl-4 md:pl-12">
-                                          <div className="flex items-center gap-2 text-slate-400">
-                                            <CornerDownRight size={14} className="opacity-50" />
-                                            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 group-hover/sub:text-slate-900 dark:group-hover/sub:text-white transition-colors">{subTopic.title}</span>
-                                          </div>
-                                          
-                                          {subTopicTotal > 0 && (
-                                            <div className="hidden sm:flex items-center gap-3 opacity-0 group-hover/sub:opacity-100 transition-all duration-300">
-                                              <div className="w-16 h-1 bg-slate-300 dark:bg-slate-700/50 rounded-full overflow-hidden">
-                                                  <div className={`h-full rounded-full transition-all duration-500 ease-out ${subTopicProgress === 100 ? 'bg-emerald-500 dark:bg-easy' : 'bg-slate-400'}`} style={{ width: `${subTopicProgress}%` }} />
-                                              </div>
-                                              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">{subTopicSolved}/{subTopicTotal}</span>
+                                    <SortableItem
+                                      key={subTopic.id}
+                                      id={subTopic.id}
+                                      data={{ type: 'subTopic', topicId: topic.id }}
+                                      children={(subDragListeners, subDragAttributes) => (
+                                      <div className="border-b border-slate-100 dark:border-white/5 last:border-0">
+                                        {/* SubTopic Header */}
+                                        <div className="px-4 py-3 md:px-5 md:py-3 bg-slate-100/50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/5 flex items-center justify-between group/sub">
+                                          <div className="flex items-center gap-2 md:gap-4 pl-4 md:pl-6">
+                                            {/* SubTopic Drag Handle */}
+                                            <div 
+                                                className="cursor-grab active:cursor-grabbing text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-white opacity-0 group-hover/sub:opacity-100 transition-opacity"
+                                                {...subDragListeners}
+                                                {...subDragAttributes}
+                                            >
+                                                <GripVertical size={14} />
                                             </div>
-                                          )}
-                                        </div>
-                                        <button onClick={() => openAddQuestion(topic.id, subTopic.id)} className="text-[10px] font-bold text-primary hover:text-white hover:bg-primary transition-all flex items-center gap-1 bg-primary/10 px-2 py-1 md:px-3 md:py-1.5 rounded-lg border border-primary/20">
-                                          <Plus size={12} /> <span className="hidden sm:inline">Add Question</span><span className="sm:hidden">Add</span>
-                                        </button>
-                                      </div>
 
-                                      {/* Questions List */}
-                                      <div className="flex flex-col">
-                                        {subTopic.questions.map(question => (
-                                          <div key={question.id} className="group/q relative border-b border-slate-100 dark:border-white/5 last:border-0 hover:bg-white dark:hover:bg-white/[0.03] transition-colors">
-                                            {/* Highlight Bar */}
-                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover/q:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-2 text-slate-400">
+                                              <CornerDownRight size={14} className="opacity-50" />
+                                              <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-300 group-hover/sub:text-slate-900 dark:group-hover/sub:text-white transition-colors">{subTopic.title}</span>
+                                              
+                                              <div className="flex items-center gap-1 opacity-0 group-hover/sub:opacity-100 transition-opacity">
+                                                  {/* Edit SubTopic */}
+                                                  <button onClick={() => openEditSubTopic(topic.id, subTopic)} className="p-1 hover:text-primary"><Pencil size={10} /></button>
+                                                  {/* Delete SubTopic */}
+                                                  <button onClick={() => requestDeleteSubTopic(topic.id, subTopic)} className="p-1 hover:text-red-500"><Trash2 size={10} /></button>
+                                              </div>
+                                            </div>
                                             
-                                            {/* Question Layout - Responsive Grid/Flex */}
-                                            <div className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 px-4 py-3 md:px-6 md:py-4 md:items-center">
-                                              
-                                              {/* Mobile Row 1: Checkbox + Title + External Link */}
-                                              <div className="flex items-start md:items-center gap-3 md:gap-4 md:col-span-5 md:pl-8">
-                                                <Checkbox 
-                                                  checked={question.status === 'Solved'} 
-                                                  onChange={() => store.markQuestionComplete(topic.id, subTopic.id, question.id, question.status !== 'Solved')}
-                                                />
-                                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                  <a 
-                                                    href={question.url} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className={`text-sm font-semibold truncate transition-colors flex items-center gap-2 ${question.status === 'Solved' ? 'text-slate-400 line-through decoration-slate-400 dark:decoration-slate-600' : 'text-slate-700 dark:text-slate-200 group-hover/q:text-primary'}`}
-                                                  >
-                                                    {question.title}
-                                                  </a>
-                                                  <a href={question.url} target="_blank" rel="noopener noreferrer" className="md:opacity-0 md:group-hover/q:opacity-100 p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-md text-slate-400 hover:text-slate-900 dark:hover:text-white transition-opacity"><ExternalLink size={14} /></a>
+                                            {subTopicTotal > 0 && (
+                                              <div className="hidden sm:flex items-center gap-3 opacity-0 group-hover/sub:opacity-100 transition-all duration-300">
+                                                <div className="w-16 h-1 bg-slate-300 dark:bg-slate-700/50 rounded-full overflow-hidden">
+                                                    <div className={`h-full rounded-full transition-all duration-500 ease-out ${subTopicProgress === 100 ? 'bg-emerald-500 dark:bg-easy' : 'bg-slate-400'}`} style={{ width: `${subTopicProgress}%` }} />
                                                 </div>
-                                              </div>
-                                              
-                                              {/* Mobile Row 2: Status + Difficulty (and Actions on right for mobile) */}
-                                              <div className="flex items-center justify-between md:contents">
-                                                <div className="flex items-center gap-3 md:contents">
-                                                    <div className="md:col-span-2">
-                                                        <StatusButton 
-                                                        status={question.status} 
-                                                        onClick={() => store.toggleStatus(topic.id, subTopic.id, question.id)} 
-                                                        />
-                                                    </div>
-                                                    
-                                                    <div className="md:col-span-2">
-                                                        <DifficultyBadge level={question.difficulty} />
-                                                    </div>
-                                                </div>
-
-                                                {/* Actions - Bottom right on mobile, Col 3 on Desktop */}
-                                                <div className="flex items-center justify-end gap-1 md:gap-2 md:col-span-3">
-                                                    {/* Note */}
-                                                    <button 
-                                                    onClick={(e) => { e.stopPropagation(); setExpandedNoteId(expandedNoteId === question.id ? null : question.id); }}
-                                                    className={`p-1.5 md:p-2 rounded-lg transition-colors ${question.note ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'text-slate-400 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
-                                                    title="Notes"
-                                                    >
-                                                    <StickyNote size={16} className="md:w-[18px] md:h-[18px]" fill={question.note ? "currentColor" : "none"} />
-                                                    </button>
-
-                                                    {/* Description */}
-                                                    <button 
-                                                    onClick={(e) => { e.stopPropagation(); setExpandedDescId(expandedDescId === question.id ? null : question.id); }}
-                                                    className={`p-1.5 md:p-2 rounded-lg transition-colors ${expandedDescId === question.id || question.description ? 'text-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'text-slate-400 hover:text-purple-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
-                                                    title="Problem Description"
-                                                    >
-                                                    <Info size={16} className="md:w-[18px] md:h-[18px]" fill={question.description ? "currentColor" : "none"} />
-                                                    </button>
-
-                                                    {/* Bookmark */}
-                                                    <button 
-                                                    onClick={(e) => { e.stopPropagation(); store.toggleBookmark(topic.id, subTopic.id, question.id); }}
-                                                    className={`p-1.5 md:p-2 rounded-lg transition-colors ${question.isBookmarked ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
-                                                    title="Bookmark"
-                                                    >
-                                                    <Bookmark size={16} className="md:w-[18px] md:h-[18px]" fill={question.isBookmarked ? "currentColor" : "none"} />
-                                                    </button>
-
-                                                    {/* Separator */}
-                                                    <div className="hidden md:block w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-
-                                                    {/* Delete */}
-                                                    <button 
-                                                    onClick={() => requestDeleteQuestion(topic.id, subTopic.id, question)} 
-                                                    className="p-1.5 md:p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors md:opacity-0 md:group-hover/q:opacity-100"
-                                                    title="Delete"
-                                                    >
-                                                    <Trash2 size={16} className="md:w-[18px] md:h-[18px]" />
-                                                    </button>
-                                                </div>
-                                              </div>
-                                            </div>
-
-                                            {/* Expanded Content: Description & Notes */}
-                                            {(expandedDescId === question.id || expandedNoteId === question.id) && (
-                                              <div className="px-6 md:px-16 pb-6 pt-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-slate-50 dark:bg-black/20 inner-shadow-lg">
-                                                {expandedDescId === question.id && (
-                                                    <div className="mb-4 bg-white dark:bg-slate-900/50 rounded-xl p-5 border border-purple-200 dark:border-purple-500/20 relative overflow-hidden shadow-sm">
-                                                      <div className="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
-                                                      <h4 className="text-xs font-bold text-purple-500 dark:text-purple-400 uppercase tracking-wider mb-2 flex items-center gap-2"><Info size={14} /> Problem Description</h4>
-                                                      <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-light">{question.description || "No description provided."}</p>
-                                                      <button onClick={() => setExpandedDescId(null)} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white"><Zap size={12} /></button>
-                                                    </div>
-                                                )}
-                                                
-                                                {expandedNoteId === question.id && (
-                                                    <div className="bg-white dark:bg-slate-900/50 rounded-xl p-1 border border-blue-200 dark:border-blue-500/20 shadow-sm">
-                                                      <div className="px-4 py-2 flex items-center gap-2 border-b border-slate-100 dark:border-white/5">
-                                                          <StickyNote size={14} className="text-blue-500 dark:text-blue-400" />
-                                                          <span className="text-xs font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider">Your Notes</span>
-                                                      </div>
-                                                      <textarea
-                                                          value={question.note || ''}
-                                                          onChange={(e) => store.updateNote(topic.id, subTopic.id, question.id, e.target.value)}
-                                                          className="w-full bg-transparent text-sm text-slate-700 dark:text-slate-200 p-4 focus:outline-none min-h-[100px] resize-y placeholder:text-slate-400 dark:placeholder:text-slate-600 font-mono"
-                                                          placeholder="Write your intuition, time complexity analysis, or reminders here..."
-                                                          autoFocus
-                                                      />
-                                                      <div className="flex justify-end px-2 py-2">
-                                                          <button onClick={() => setExpandedNoteId(null)} className="px-3 py-1 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold rounded hover:bg-blue-500 hover:text-white transition-colors">Save Note</button>
-                                                      </div>
-                                                    </div>
-                                                )}
+                                                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">{subTopicSolved}/{subTopicTotal}</span>
                                               </div>
                                             )}
                                           </div>
-                                        ))}
+                                          <button onClick={() => openAddQuestion(topic.id, subTopic.id)} className="text-[10px] font-bold text-primary hover:text-white hover:bg-primary transition-all flex items-center gap-1 bg-primary/10 px-2 py-1 md:px-3 md:py-1.5 rounded-lg border border-primary/20">
+                                            <Plus size={12} /> <span className="hidden sm:inline">Add Question</span><span className="sm:hidden">Add</span>
+                                          </button>
+                                        </div>
+
+                                        {/* Questions List */}
+                                        <div className="flex flex-col">
+                                          <SortableContext items={subTopic.questions.map(q => q.id)} strategy={verticalListSortingStrategy}>
+                                          {subTopic.questions.map(question => (
+                                            <SortableItem
+                                              key={question.id}
+                                              id={question.id}
+                                              data={{ type: 'question', topicId: topic.id, subTopicId: subTopic.id }}
+                                              children={(qDragListeners, qDragAttributes) => (
+                                              <div className="group/q relative border-b border-slate-100 dark:border-white/5 last:border-0 hover:bg-white dark:hover:bg-white/[0.03] transition-colors">
+                                                {/* Highlight Bar */}
+                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover/q:opacity-100 transition-opacity"></div>
+                                                
+                                                {/* Question Layout - Responsive Grid/Flex */}
+                                                <div className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 px-4 py-3 md:px-6 md:py-4 md:items-center">
+                                                  
+                                                  {/* Mobile Row 1: Checkbox + Title + External Link */}
+                                                  <div className="flex items-start md:items-center gap-3 md:gap-4 md:col-span-5 md:pl-2">
+                                                    
+                                                    {/* Question Drag Handle */}
+                                                    <div 
+                                                        className="mt-1 md:mt-0 cursor-grab active:cursor-grabbing text-slate-300 dark:text-slate-600 hover:text-slate-600 dark:hover:text-white opacity-0 group-hover/q:opacity-100 transition-opacity"
+                                                        {...qDragListeners}
+                                                        {...qDragAttributes}
+                                                    >
+                                                        <GripVertical size={16} />
+                                                    </div>
+
+                                                    <Checkbox 
+                                                      checked={question.status === 'Solved'} 
+                                                      onChange={() => store.markQuestionComplete(topic.id, subTopic.id, question.id, question.status !== 'Solved')}
+                                                    />
+                                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                      <a 
+                                                        href={question.url} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className={`text-sm font-semibold truncate transition-colors flex items-center gap-2 ${question.status === 'Solved' ? 'text-slate-400 line-through decoration-slate-400 dark:decoration-slate-600' : 'text-slate-700 dark:text-slate-200 group-hover/q:text-primary'}`}
+                                                      >
+                                                        {question.title}
+                                                      </a>
+                                                      {/* Edit Question Trigger */}
+                                                      <button 
+                                                        onClick={(e) => openEditQuestion(e, topic.id, subTopic.id, question)}
+                                                        className="opacity-0 group-hover/q:opacity-100 p-1 text-slate-400 hover:text-primary"
+                                                      >
+                                                        <Pencil size={12} />
+                                                      </button>
+
+                                                      <a href={question.url} target="_blank" rel="noopener noreferrer" className="md:opacity-0 md:group-hover/q:opacity-100 p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-md text-slate-400 hover:text-slate-900 dark:hover:text-white transition-opacity"><ExternalLink size={14} /></a>
+                                                    </div>
+                                                  </div>
+                                                  
+                                                  {/* Mobile Row 2: Status + Difficulty (and Actions on right for mobile) */}
+                                                  <div className="flex items-center justify-between md:contents">
+                                                    <div className="flex items-center gap-3 md:contents">
+                                                        <div className="md:col-span-2">
+                                                            <StatusButton 
+                                                            status={question.status} 
+                                                            onClick={() => store.toggleStatus(topic.id, subTopic.id, question.id)} 
+                                                            />
+                                                        </div>
+                                                        
+                                                        <div className="md:col-span-2">
+                                                            <DifficultyBadge level={question.difficulty} />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Actions - Bottom right on mobile, Col 3 on Desktop */}
+                                                    <div className="flex items-center justify-end gap-1 md:gap-2 md:col-span-3">
+                                                        {/* Note */}
+                                                        <button 
+                                                        onClick={(e) => { e.stopPropagation(); setExpandedNoteId(expandedNoteId === question.id ? null : question.id); }}
+                                                        className={`p-1.5 md:p-2 rounded-lg transition-colors ${question.note ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'text-slate-400 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                                                        title="Notes"
+                                                        >
+                                                        <StickyNote size={16} className="md:w-[18px] md:h-[18px]" fill={question.note ? "currentColor" : "none"} />
+                                                        </button>
+
+                                                        {/* Description */}
+                                                        <button 
+                                                        onClick={(e) => { e.stopPropagation(); setExpandedDescId(expandedDescId === question.id ? null : question.id); }}
+                                                        className={`p-1.5 md:p-2 rounded-lg transition-colors ${expandedDescId === question.id || question.description ? 'text-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'text-slate-400 hover:text-purple-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                                                        title="Problem Description"
+                                                        >
+                                                        <Info size={16} className="md:w-[18px] md:h-[18px]" fill={question.description ? "currentColor" : "none"} />
+                                                        </button>
+
+                                                        {/* Bookmark */}
+                                                        <button 
+                                                        onClick={(e) => { e.stopPropagation(); store.toggleBookmark(topic.id, subTopic.id, question.id); }}
+                                                        className={`p-1.5 md:p-2 rounded-lg transition-colors ${question.isBookmarked ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                                                        title="Bookmark"
+                                                        >
+                                                        <Bookmark size={16} className="md:w-[18px] md:h-[18px]" fill={question.isBookmarked ? "currentColor" : "none"} />
+                                                        </button>
+
+                                                        {/* Separator */}
+                                                        <div className="hidden md:block w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+                                                        {/* Delete */}
+                                                        <button 
+                                                        onClick={() => requestDeleteQuestion(topic.id, subTopic.id, question)} 
+                                                        className="p-1.5 md:p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors md:opacity-0 md:group-hover/q:opacity-100"
+                                                        title="Delete"
+                                                        >
+                                                        <Trash2 size={16} className="md:w-[18px] md:h-[18px]" />
+                                                        </button>
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                {/* Expanded Content: Description & Notes */}
+                                                {(expandedDescId === question.id || expandedNoteId === question.id) && (
+                                                  <div className="px-6 md:px-16 pb-6 pt-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-slate-50 dark:bg-black/20 inner-shadow-lg">
+                                                    {expandedDescId === question.id && (
+                                                        <div className="mb-4 bg-white dark:bg-slate-900/50 rounded-xl p-5 border border-purple-200 dark:border-purple-500/20 relative overflow-hidden shadow-sm">
+                                                          <div className="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                                                          <h4 className="text-xs font-bold text-purple-500 dark:text-purple-400 uppercase tracking-wider mb-2 flex items-center gap-2"><Info size={14} /> Problem Description</h4>
+                                                          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-light">{question.description || "No description provided."}</p>
+                                                          <button onClick={() => setExpandedDescId(null)} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white"><Zap size={12} /></button>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {expandedNoteId === question.id && (
+                                                        <div className="bg-white dark:bg-slate-900/50 rounded-xl p-1 border border-blue-200 dark:border-blue-500/20 shadow-sm">
+                                                          <div className="px-4 py-2 flex items-center gap-2 border-b border-slate-100 dark:border-white/5">
+                                                              <StickyNote size={14} className="text-blue-500 dark:text-blue-400" />
+                                                              <span className="text-xs font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider">Your Notes</span>
+                                                          </div>
+                                                          <textarea
+                                                              value={question.note || ''}
+                                                              onChange={(e) => store.updateNote(topic.id, subTopic.id, question.id, e.target.value)}
+                                                              className="w-full bg-transparent text-sm text-slate-700 dark:text-slate-200 p-4 focus:outline-none min-h-[100px] resize-y placeholder:text-slate-400 dark:placeholder:text-slate-600 font-mono"
+                                                              placeholder="Write your intuition, time complexity analysis, or reminders here..."
+                                                              autoFocus
+                                                          />
+                                                          <div className="flex justify-end px-2 py-2">
+                                                              <button onClick={() => setExpandedNoteId(null)} className="px-3 py-1 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold rounded hover:bg-blue-500 hover:text-white transition-colors">Save Note</button>
+                                                          </div>
+                                                        </div>
+                                                    )}
+                                                  </div>
+                                                )}
+                                              </div>
+                                              )}
+                                            />
+                                          ))}
+                                          </SortableContext>
+                                        </div>
                                       </div>
-                                    </div>
+                                      )}
+                                    />
                                   );
-                                })
+                                })}
+                                </SortableContext>
                               )}
                             </div>
                           )}
@@ -990,16 +1085,18 @@ function App() {
         <AddModal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
-          onConfirm={handleConfirmAdd}
+          onConfirm={handleModalSubmit}
           title={modalConfig.title}
           type={modalConfig.type}
+          initialData={modalConfig.initialData}
+          mode={modalConfig.mode}
         />
         
         <ConfirmationModal 
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={handleConfirmDelete}
-          title={`Delete ${deleteConfig?.type === 'topic' ? 'Topic' : 'Question'}`}
+          title={`Delete ${deleteConfig?.type === 'topic' ? 'Topic' : deleteConfig?.type === 'subTopic' ? 'Sub-Topic' : 'Question'}`}
           message={`Are you sure you want to delete "${deleteConfig?.title}"? This action cannot be undone.`}
         />
       </main>

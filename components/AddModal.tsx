@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface AddModalProps {
@@ -7,26 +7,56 @@ interface AddModalProps {
   onConfirm: (data: any) => void;
   title: string;
   type: 'topic' | 'subTopic' | 'question';
+  initialData?: any;
+  mode?: 'create' | 'edit';
 }
 
-export const AddModal: React.FC<AddModalProps> = ({ isOpen, onClose, onConfirm, title, type }) => {
+export const AddModal: React.FC<AddModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  title, 
+  type,
+  initialData,
+  mode = 'create'
+}) => {
   const [input1, setInput1] = useState('');
   const [input2, setInput2] = useState(''); // URL for question
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState('Easy');
+
+  useEffect(() => {
+    if (isOpen && initialData && mode === 'edit') {
+      setInput1(initialData.title || '');
+      if (type === 'question') {
+        setInput2(initialData.url || '');
+        setDescription(initialData.description || '');
+        setDifficulty(initialData.difficulty || 'Easy');
+      }
+    } else if (isOpen && mode === 'create') {
+      // Reset for create mode
+      setInput1('');
+      setInput2('');
+      setDescription('');
+      setDifficulty('Easy');
+    }
+  }, [isOpen, initialData, mode, type]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (type === 'question') {
-      onConfirm({ title: input1, url: input2, difficulty, status: 'Todo', description });
+      onConfirm({ 
+        title: input1, 
+        url: input2, 
+        difficulty, 
+        status: initialData?.status || 'Todo', 
+        description 
+      });
     } else {
       onConfirm({ title: input1 });
     }
-    setInput1('');
-    setInput2('');
-    setDescription('');
     onClose();
   };
 
@@ -116,7 +146,7 @@ export const AddModal: React.FC<AddModalProps> = ({ isOpen, onClose, onConfirm, 
               type="submit"
               className="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
             >
-              Confirm
+              {mode === 'create' ? 'Create' : 'Save Changes'}
             </button>
           </div>
         </form>

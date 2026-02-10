@@ -24,15 +24,31 @@ interface AppState {
   toggleBookmark: (topicId: string, subTopicId: string, questionId: string) => void;
   updateNote: (topicId: string, subTopicId: string, questionId: string, note: string) => void;
   markQuestionComplete: (topicId: string, subTopicId: string, questionId: string, isComplete: boolean) => void;
-  deleteQuestion: (topicId: string, subTopicId: string, questionId: string) => void;
-  addQuestion: (topicId: string, subTopicId: string, question: Omit<Question, 'id'>) => void;
+  
+  // CRUD & Reorder
   addTopic: (title: string) => void;
+  updateTopic: (topicId: string, title: string) => void;
   deleteTopic: (topicId: string) => void;
-  moveTopicUp: (index: number) => void;
-  moveTopicDown: (index: number) => void;
-  addSubTopic: (topicId: string, title: string) => void;
   reorderTopics: (oldIndex: number, newIndex: number) => void;
+
+  addSubTopic: (topicId: string, title: string) => void;
+  updateSubTopic: (topicId: string, subTopicId: string, title: string) => void;
+  deleteSubTopic: (topicId: string, subTopicId: string) => void;
+  reorderSubTopics: (topicId: string, oldIndex: number, newIndex: number) => void;
+
+  addQuestion: (topicId: string, subTopicId: string, question: Omit<Question, 'id'>) => void;
+  updateQuestion: (topicId: string, subTopicId: string, questionId: string, data: Partial<Question>) => void;
+  deleteQuestion: (topicId: string, subTopicId: string, questionId: string) => void;
+  reorderQuestions: (topicId: string, subTopicId: string, oldIndex: number, newIndex: number) => void;
 }
+
+// Helper to reorder array
+const reorder = <T>(list: T[], startIndex: number, endIndex: number): T[] => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  return result;
+};
 
 export const useStore = create<AppState>()(
   persist(
@@ -136,21 +152,76 @@ export const useStore = create<AppState>()(
         })
       })),
 
-      deleteQuestion: (topicId, subTopicId, questionId) => set((state) => ({
+      // --- Topic CRUD ---
+
+      addTopic: (title) => set((state) => ({
+        topics: [...state.topics, {
+          id: uuidv4(),
+          title,
+          isExpanded: true,
+          subTopics: []
+        }]
+      })),
+
+      updateTopic: (topicId, title) => set((state) => ({
+        topics: state.topics.map(t => t.id === topicId ? { ...t, title } : t)
+      })),
+
+      deleteTopic: (topicId) => set((state) => ({
+        topics: state.topics.filter(t => t.id !== topicId)
+      })),
+
+      reorderTopics: (oldIndex, newIndex) => set((state) => ({
+        topics: reorder(state.topics, oldIndex, newIndex)
+      })),
+
+      // --- SubTopic CRUD ---
+
+      addSubTopic: (topicId, title) => set((state) => ({
         topics: state.topics.map(t => {
           if (t.id !== topicId) return t;
           return {
             ...t,
-            subTopics: t.subTopics.map(st => {
-              if (st.id !== subTopicId) return st;
-              return {
-                ...st,
-                questions: st.questions.filter(q => q.id !== questionId)
-              };
-            })
+            subTopics: [...t.subTopics, {
+              id: uuidv4(),
+              title,
+              questions: []
+            }]
           };
         })
       })),
+
+      updateSubTopic: (topicId, subTopicId, title) => set((state) => ({
+        topics: state.topics.map(t => {
+          if (t.id !== topicId) return t;
+          return {
+            ...t,
+            subTopics: t.subTopics.map(st => st.id === subTopicId ? { ...st, title } : st)
+          };
+        })
+      })),
+
+      deleteSubTopic: (topicId, subTopicId) => set((state) => ({
+        topics: state.topics.map(t => {
+          if (t.id !== topicId) return t;
+          return {
+            ...t,
+            subTopics: t.subTopics.filter(st => st.id !== subTopicId)
+          };
+        })
+      })),
+
+      reorderSubTopics: (topicId, oldIndex, newIndex) => set((state) => ({
+        topics: state.topics.map(t => {
+          if (t.id !== topicId) return t;
+          return {
+            ...t,
+            subTopics: reorder(t.subTopics, oldIndex, newIndex)
+          };
+        })
+      })),
+
+      // --- Question CRUD ---
 
       addQuestion: (topicId, subTopicId, questionData) => set((state) => ({
         topics: state.topics.map(t => {
@@ -168,53 +239,53 @@ export const useStore = create<AppState>()(
         })
       })),
 
-      addTopic: (title) => set((state) => ({
-        topics: [...state.topics, {
-          id: uuidv4(),
-          title,
-          isExpanded: true,
-          subTopics: []
-        }]
-      })),
-
-      deleteTopic: (topicId) => set((state) => ({
-        topics: state.topics.filter(t => t.id !== topicId)
-      })),
-
-      addSubTopic: (topicId, title) => set((state) => ({
+      updateQuestion: (topicId, subTopicId, questionId, data) => set((state) => ({
         topics: state.topics.map(t => {
           if (t.id !== topicId) return t;
           return {
             ...t,
-            subTopics: [...t.subTopics, {
-              id: uuidv4(),
-              title,
-              questions: []
-            }]
+            subTopics: t.subTopics.map(st => {
+              if (st.id !== subTopicId) return st;
+              return {
+                ...st,
+                questions: st.questions.map(q => q.id === questionId ? { ...q, ...data } : q)
+              };
+            })
           };
         })
       })),
 
-      moveTopicUp: (index) => set((state) => {
-        if (index === 0) return state;
-        const newTopics = [...state.topics];
-        [newTopics[index - 1], newTopics[index]] = [newTopics[index], newTopics[index - 1]];
-        return { topics: newTopics };
-      }),
+      deleteQuestion: (topicId, subTopicId, questionId) => set((state) => ({
+        topics: state.topics.map(t => {
+          if (t.id !== topicId) return t;
+          return {
+            ...t,
+            subTopics: t.subTopics.map(st => {
+              if (st.id !== subTopicId) return st;
+              return {
+                ...st,
+                questions: st.questions.filter(q => q.id !== questionId)
+              };
+            })
+          };
+        })
+      })),
 
-      moveTopicDown: (index) => set((state) => {
-        if (index === state.topics.length - 1) return state;
-        const newTopics = [...state.topics];
-        [newTopics[index + 1], newTopics[index]] = [newTopics[index], newTopics[index + 1]];
-        return { topics: newTopics };
-      }),
-
-      reorderTopics: (oldIndex, newIndex) => set((state) => {
-        const newTopics = [...state.topics];
-        const [removed] = newTopics.splice(oldIndex, 1);
-        newTopics.splice(newIndex, 0, removed);
-        return { topics: newTopics };
-      })
+      reorderQuestions: (topicId, subTopicId, oldIndex, newIndex) => set((state) => ({
+        topics: state.topics.map(t => {
+          if (t.id !== topicId) return t;
+          return {
+            ...t,
+            subTopics: t.subTopics.map(st => {
+              if (st.id !== subTopicId) return st;
+              return {
+                ...st,
+                questions: reorder(st.questions, oldIndex, newIndex)
+              };
+            })
+          };
+        })
+      }))
     }),
     {
       name: 'codemaster-storage',
