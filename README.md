@@ -1,352 +1,175 @@
-# 🚀 CodeMaster - Ultimate Interactive SDE Tracker
+# 🚀 CodeMaster - Interactive Question Management Sheet
 
 <div align="center">
 
-![CodeMaster Banner](https://img.shields.io/badge/CodeMaster-v2.0.4-6366f1?style=for-the-badge&logo=code&logoColor=white)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-34d399?style=for-the-badge&logo=vercel&logoColor=white)](YOUR_DEPLOYMENT_LINK_HERE)
 [![React](https://img.shields.io/badge/React-19.2.4-61dafb?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-**A premium, AI-powered DSA tracking application with glassmorphism UI, confetti celebrations, and intelligent progress analytics**
+**An interactive DSA problem tracker with AI assistance, drag-and-drop reordering, and real-time progress tracking**
 
-[🌐 Live Demo](https://codemaster-interactive-question-tra.vercel.app) • [📖 Documentation](#features) • [🚀 Quick Start](#getting-started)
+[🌐 Live Demo](YOUR_DEPLOYMENT_LINK_HERE) • [📖 Features](#-features) • [🚀 Quick Start](#-quick-start)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## 📋 Overview
 
-- [Overview](#overview)
-- [✨ Key Features](#-key-features)
-- [🎨 UI/UX Highlights](#-uiux-highlights)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [🚀 Getting Started](#-getting-started)
-- [📦 Deployment](#-deployment)
-- [🎯 Usage Guide](#-usage-guide)
-- [🤝 Contributing](#-contributing)
-- [� Licednse](#-license)
+CodeMaster is a single-page web application for managing hierarchical DSA questions organized by topics and sub-topics. Built with React, TypeScript, and Tailwind CSS, it provides an intuitive interface for tracking coding interview preparation.
 
 ---
 
-## Overview
+## ✨ Features
 
-**CodeMaster** is a next-generation DSA (Data Structures & Algorithms) preparation tracker designed to transform your coding interview preparation into an engaging, visually stunning experience. Built with modern web technologies and featuring an integrated AI assistant, CodeMaster helps you stay organized, motivated, and on track to ace your technical interviews.
+### Core Functionality (Assignment Requirements)
+- ✅ **Add/Delete Topics** - Create and remove topic categories
+- ✅ **Add/Delete Sub-topics** - Organize questions under topics
+- ✅ **Add/Delete Questions** - Manage individual problems with URLs, difficulty levels, and descriptions
+- ✅ **Drag & Drop Reordering** - Rearrange topics using intuitive drag-and-drop
+- ✅ **State Management** - Zustand with LocalStorage persistence
+- ✅ **Responsive Design** - Mobile-friendly with Tailwind CSS
 
-### 🎯 Perfect For:
-- Software Engineering Interview Preparation
-- Competitive Programming Practice
-- DSA Learning & Revision
-- Technical Interview Tracking
-- Coding Challenge Management
-
----
-
-## ✨ Key Features
-
-### 🧠 **Smart Problem Tracking**
-- **Pre-loaded Problem Sets**: Includes popular sheets like:
-  - 🔥 Striver's SDE Sheet
-  - ⚡ NeetCode 150
-  - 📁 Love Babbar 450
-- **Custom Problem Management**: Add your own topics, sub-topics, and questions with URLs
-- **Status Workflow**: Seamlessly cycle through `Todo` → `Solved` → `Revision` states
-- **Progress Visualization**: Beautiful animated progress bars that update in real-time
-- **Drag & Drop Reordering**: Prioritize topics using intuitive drag-and-drop powered by `@dnd-kit`
-
-### 🤖 **AI-Powered Assistant**
-- **Integrated Gemini AI Chatbot**: Get instant help with:
-  - Problem explanations and hints
-  - Time/space complexity analysis
-  - Algorithm concept clarification
-  - Code review and optimization suggestions
-- **Context-Aware**: Acts as a Senior SDE Mentor
-- **Smart Responses**: Provides hints without spoiling solutions (unless requested)
-- **Expandable Interface**: Full-screen mode for detailed discussions
-
-### 🎨 **Modern Glassmorphism UI**
-- **Stunning Visual Design**: 
-  - Translucent glass-effect panels with blur effects
-  - Ambient lighting animations
-  - Smooth gradient transitions
-  - Neon glow effects on interactive elements
-- **Dark/Light Mode**: 
-  - Seamless theme switching with persistent state
-  - Dynamic background gradients
-  - Optimized color schemes for both modes
-- **Responsive Design**: 
-  - Fully optimized for Desktop, Tablet, and Mobile
-  - Collapsible sidebar on desktop
-  - Mobile-friendly drawer navigation
-  - Touch-optimized interactions
-
-### 🎉 **Celebration & Gamification**
-- **Confetti Celebrations**: Automatic confetti burst when you complete a topic
-- **Visual Feedback**: Smooth animations and transitions throughout
-- **Progress Milestones**: Track your achievements with detailed analytics
-
-### 📊 **Advanced Analytics Dashboard**
-- **Performance Metrics**:
-  - Total problems solved
-  - Difficulty-wise breakdown (Easy/Medium/Hard)
-  - Progress percentage tracking
-  - Visual statistics cards with gradient effects
-- **Detailed Analytics View**: 
-  - Weekly/Monthly tracking (UI ready for chart integration)
-  - Problem distribution visualization
-  - Completion rate monitoring
-
-### 🛠️ **Productivity Tools**
-- **Notes System**: 
-  - Take markdown-formatted notes for each question
-  - Expandable note editor
-  - Persistent storage using LocalStorage
-- **Bookmarking**: 
-  - Mark challenging problems for quick access
-  - Filter view to show only bookmarked items
-- **Advanced Filtering**:
-  - Filter by difficulty (Easy/Medium/Hard)
-  - Search by problem name
-  - Bookmark-only view
-  - Combined filter support
-- **Problem Descriptions**: Store and view problem statements directly in the app
-
-### 💾 **Data Persistence**
-- **Local Storage Integration**: All progress automatically saved
-- **State Management**: Powered by Zustand with persist middleware
-- **No Data Loss**: Your progress is safe even after browser refresh
-
----
-
-## 🎨 UI/UX Highlights
-
-### Design Philosophy
-CodeMaster follows a **premium glassmorphism design language** with:
-- Frosted glass effects with backdrop blur
-- Subtle animations and micro-interactions
-- Gradient accents and neon highlights
-- Ambient lighting effects
-- Smooth state transitions
-
-### Color Palette
-```css
-Primary:   #6366f1 (Indigo)
-Secondary: #a855f7 (Purple)
-Accent:    #ec4899 (Pink)
-Easy:      #34d399 (Emerald)
-Medium:    #fbbf24 (Amber)
-Hard:      #fb7185 (Rose)
-```
-
-### Typography
-- **Display Font**: Space Grotesk (Headings)
-- **Body Font**: Inter (Content)
-- Optimized for readability with proper font weights and spacing
-
-### Animations
-- Smooth page transitions
-- Hover effects on interactive elements
-- Progress bar fill animations
-- Confetti particle effects
-- Shimmer effects on progress indicators
-- Pulse animations on status indicators
+### Bonus Features
+- 🤖 **AI Chatbot** - Integrated Gemini AI for problem hints and explanations
+- 🎨 **Dark/Light Mode** - Theme switching with persistent preferences
+- 🎉 **Confetti Celebrations** - Visual feedback when completing topics
+- 📊 **Progress Tracking** - Animated progress bars and analytics dashboard
+- 📝 **Notes System** - Take notes on individual questions
+- 🔖 **Bookmarking** - Mark important problems for quick access
+- 🔍 **Advanced Filtering** - Filter by difficulty level and bookmarks
+- ✅ **Status Workflow** - Track progress: Todo → Solved → Revision
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend Framework
-- **React 19.2.4** - Latest React with concurrent features
-- **TypeScript 5.8.2** - Type-safe development
-- **Vite 6.2.0** - Lightning-fast build tool
-
-### Styling
-- **Tailwind CSS** (CDN) - Utility-first CSS framework
-- **Custom CSS** - Glassmorphism effects and animations
-- **Google Fonts** - Space Grotesk & Inter
-
-### State Management
-- **Zustand 5.0.11** - Lightweight state management
-- **Persist Middleware** - LocalStorage integration
-
-### AI Integration
-- **Google GenAI SDK 1.40.0** - Gemini AI integration
-- **Gemini 2.5 Flash Lite** - Fast, efficient AI responses
-
-### UI Libraries
-- **Lucide React 0.563.0** - Beautiful icon library
-- **@dnd-kit** - Drag and drop functionality
-  - `@dnd-kit/core` 6.1.0
-  - `@dnd-kit/sortable` 8.0.0
-  - `@dnd-kit/utilities` 3.2.2
-- **canvas-confetti 1.9.2** - Celebration effects
-
-### Utilities
-- **UUID 13.0.0** - Unique ID generation
+- **Frontend**: React 19.2.4, TypeScript 5.8.2
+- **Build Tool**: Vite 6.2.0
+- **Styling**: Tailwind CSS (CDN), Custom Glassmorphism UI
+- **State Management**: Zustand 5.0.11 with persist middleware
+- **AI Integration**: Google GenAI SDK 1.40.0 (Gemini 2.5 Flash Lite)
+- **UI Libraries**: 
+  - Lucide React (icons)
+  - @dnd-kit (drag & drop)
+  - canvas-confetti (celebrations)
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-
-Before you begin, ensure you have:
-- **Node.js** (v18 or higher)
-- **npm** or **yarn**
-- **Google Gemini API Key** ([Get one here](https://makersuite.google.com/app/apikey))
+- Node.js (v18+)
+- npm or yarn
+- Google Gemini API Key ([Get one here](https://makersuite.google.com/app/apikey))
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/codemaster.git
-   cd codemaster
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/codemaster.git
+cd codemaster
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. **Environment Setup**
-   
-   Create a `.env.local` file in the root directory:
-   ```env
-   VITE_API_KEY=your_gemini_api_key_here
-   ```
-   
-   > ⚠️ **Important**: Never commit your API key to version control!
+# Create .env.local file
+echo "VITE_API_KEY=your_gemini_api_key_here" > .env.local
 
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+# Run development server
+npm run dev
 
-5. **Open your browser**
-   
-   Navigate to `http://localhost:3000`
+# Open http://localhost:3000
+```
 
 ### Build for Production
 
 ```bash
 npm run build
-```
-
-The optimized production build will be in the `dist` folder.
-
-### Preview Production Build
-
-```bash
 npm run preview
 ```
 
 ---
 
-## 🎯 Usage Guide
+## 🎯 Usage
 
-### Getting Started with CodeMaster
-
-1. **Choose a Problem Set**
-   - Click on "Striver SDE Sheet", "NeetCode 150", or "Love Babbar 450" from the sidebar
-
-2. **Track Your Progress**
-   - Click on a topic to expand and view sub-topics
-   - Click the status button to cycle: `Todo` → `Solved` → `Revision`
-   - Use the checkbox for quick completion marking
-
-3. **Add Custom Content**
-   - Click the `+` button to add new topics
-   - Add sub-topics within any topic
-   - Add custom questions with URLs and descriptions
-
-4. **Use the AI Assistant**
-   - Click the floating chat button in the bottom-right
-   - Ask questions about algorithms, data structures, or specific problems
-   - Get hints, explanations, and code reviews
-
-5. **Take Notes**
-   - Click the note icon on any question
-   - Write markdown-formatted notes
-   - Notes are automatically saved
-
-6. **Filter and Search**
-   - Use the difficulty filter to focus on specific levels
-   - Toggle bookmarks to view only marked problems
-   - Use the search bar to find specific questions
-
-7. **View Analytics**
-   - Click "Performance" in the sidebar
-   - View your progress statistics
-   - Track completion rates by difficulty
-
-### Keyboard Shortcuts
-
-- `Ctrl/Cmd + K` - Focus search (coming soon)
-- `Ctrl/Cmd + B` - Toggle bookmark filter (coming soon)
-- `Ctrl/Cmd + /` - Open AI assistant (coming soon)
+1. **Add Topics** - Click the `+` button to create new topic categories
+2. **Add Sub-topics** - Expand a topic and add sub-categories
+3. **Add Questions** - Add problems with title, URL, difficulty, and description
+4. **Track Progress** - Click status buttons to cycle: Todo → Solved → Revision
+5. **Reorder Topics** - Drag and drop topics to prioritize your learning
+6. **Use AI Assistant** - Click the chat button for hints and explanations
+7. **Take Notes** - Click the note icon to add personal notes
+8. **Filter & Search** - Use difficulty filters and bookmarks to focus your study
 
 ---
 
-## 📝 Roadmap
+## 📸 Screenshots
 
-### Upcoming Features
+### Main Dashboard
+![Dashboard](https://via.placeholder.com/800x400?text=Add+Your+Screenshot+Here)
 
-- [ ] Chart.js integration for detailed analytics
-- [ ] Export progress as PDF/CSV
-- [ ] Cloud sync with user accounts
-- [ ] Collaborative study groups
-- [ ] Spaced repetition algorithm
-- [ ] Code snippet storage
-- [ ] Video solution links
-- [ ] Timer for practice sessions
-- [ ] Streak tracking
-- [ ] Achievement badges
+### AI Chatbot
+![Chatbot](https://via.placeholder.com/800x400?text=Add+Your+Screenshot+Here)
+
+---
+
+## 🎨 UI Highlights
+
+- **Glassmorphism Design** - Frosted glass effects with backdrop blur
+- **Smooth Animations** - Progress bars, hover effects, and transitions
+- **Ambient Lighting** - Dynamic gradient backgrounds
+- **Responsive Layout** - Optimized for desktop, tablet, and mobile
+- **Collapsible Sidebar** - Maximize workspace on desktop
+
+---
+
+## 📝 Assignment Compliance
+
+This project fulfills all requirements from the Interactive Question Management Sheet assignment:
+
+| Requirement | Status |
+|------------|--------|
+| Add/Delete Topics | ✅ |
+| Add/Delete Sub-topics | ✅ |
+| Add/Delete Questions | ✅ |
+| Drag & Drop Reordering | ✅ |
+| React Framework | ✅ |
+| Tailwind CSS | ✅ |
+| Zustand State Management | ✅ |
+| Sample Data Integration | ✅ |
+| Clean & Intuitive UI | ✅ |
+| Bonus Improvements | ✅ (10+ features) |
 
 ---
 
 ## 🐛 Known Issues
 
-- Chart visualization module not yet implemented (placeholder shown)
-- Some TypeScript type definitions need refinement
-- Mobile landscape mode needs optimization
+- Edit functionality for topics/sub-topics not yet implemented
+- Drag & drop limited to topics only (sub-topics/questions coming soon)
+- API integration uses local state (no backend calls)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Striver** for the amazing SDE Sheet
-- **NeetCode** for the curated 150 problems
-- **Love Babbar** for the comprehensive 450 DSA problems
-- **Google** for the Gemini AI API
-- **Lucide** for the beautiful icon set
-- **Tailwind CSS** for the utility-first framework
+This project is licensed under the MIT License.
 
 ---
 
 ## 📧 Contact
 
-**Developer**: Raghu 
-**Email**: raghu.p0808@gmail.com 
-**LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/jaya-raghunandhan-reddy-p-2006aug)  
-**GitHub**: [@yourusername](https://github.com/KiritoReborn)
+**Developer**: [Your Name]  
+**Email**: your.email@example.com  
+**GitHub**: [@yourusername](https://github.com/yourusername)  
+**LinkedIn**: [Your Profile](https://linkedin.com/in/yourprofile)
 
 ---
 
 <div align="center">
 
-### ⭐ Star this repository if you find it helpful!
+**Made with ❤️ for the Internship Assignment**
 
-**Made with ❤️ for Developers**
-
-![Visitors](https://visitor-badge.laobi.icu/badge?page_id=yourusername.codemaster)
 [![GitHub stars](https://img.shields.io/github/stars/yourusername/codemaster?style=social)](https://github.com/yourusername/codemaster/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/codemaster?style=social)](https://github.com/yourusername/codemaster/network/members)
 
 </div>
