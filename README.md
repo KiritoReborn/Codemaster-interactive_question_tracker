@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-34d399?style=for-the-badge&logo=vercel&logoColor=white)]([YOUR_DEPLOYMENT_LINK_HERE](https://codemaster-interactive-question-tra.vercel.app))
+[![Live Demo](https://img.shields.io/badge/Live-Demo-34d399?style=for-the-badge&logo=vercel&logoColor=white)](https://codemaster-interactive-question-tra.vercel.app)
 [![React](https://img.shields.io/badge/React-19.2.4-61dafb?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
