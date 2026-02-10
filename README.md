@@ -8,7 +8,7 @@
 
 **An interactive DSA problem tracker with AI assistance, drag-and-drop reordering, and real-time progress tracking**
 
-[🌐 Live Demo](YOUR_DEPLOYMENT_LINK_HERE) • [📖 Features](#-features) • [🚀 Quick Start](#-quick-start)
+[🌐 Live Demo](https://codemaster-interactive-question-tra.vercel.app) • [📖 Features](#-features) • [🚀 Quick Start](#-quick-start)
 
 </div>
 
@@ -17,6 +17,13 @@
 ## 📋 Overview
 
 CodeMaster is a single-page web application for managing hierarchical DSA questions organized by topics and sub-topics. Built with React, TypeScript, and Tailwind CSS, it provides an intuitive interface for tracking coding interview preparation.
+
+---
+
+## Development Notes
+
+This project was built as part of an assignment.
+AI tools were used during initial scaffolding and exploration, followed by manual refinement, debugging, and feature completion by me.
 
 ---
 
