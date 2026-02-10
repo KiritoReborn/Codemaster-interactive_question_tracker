@@ -23,10 +23,10 @@ CodeMaster is a single-page web application for managing hierarchical DSA questi
 ## ✨ Features
 
 ### Core Functionality (Assignment Requirements)
-- ✅ **Add/Delete Topics** - Create and remove topic categories
-- ✅ **Add/Delete Sub-topics** - Organize questions under topics
-- ✅ **Add/Delete Questions** - Manage individual problems with URLs, difficulty levels, and descriptions
-- ✅ **Drag & Drop Reordering** - Rearrange topics using intuitive drag-and-drop
+- ✅ **Create/Edit/Delete Topics** - Full CRUD operations for topic categories
+- ✅ **Create/Edit/Delete Sub-topics** - Complete management of sub-categories
+- ✅ **Create/Edit/Delete Questions** - Manage problems with title, URL, difficulty, and descriptions
+- ✅ **Drag & Drop Reordering** - Rearrange topics, sub-topics, and questions
 - ✅ **State Management** - Zustand with LocalStorage persistence
 - ✅ **Responsive Design** - Mobile-friendly with Tailwind CSS
 
@@ -93,14 +93,14 @@ npm run preview
 
 ## 🎯 Usage
 
-1. **Add Topics** - Click the `+` button to create new topic categories
-2. **Add Sub-topics** - Expand a topic and add sub-categories
-3. **Add Questions** - Add problems with title, URL, difficulty, and description
+1. **Manage Topics** - Create, edit, delete, and reorder topic categories via drag & drop
+2. **Manage Sub-topics** - Add, edit, delete, and reorder sub-categories within topics
+3. **Manage Questions** - Full CRUD operations with drag & drop reordering
 4. **Track Progress** - Click status buttons to cycle: Todo → Solved → Revision
-5. **Reorder Topics** - Drag and drop topics to prioritize your learning
-6. **Use AI Assistant** - Click the chat button for hints and explanations
-7. **Take Notes** - Click the note icon to add personal notes
-8. **Filter & Search** - Use difficulty filters and bookmarks to focus your study
+5. **Use AI Assistant** - Click the chat button for hints and explanations
+6. **Take Notes** - Click the note icon to add personal notes
+7. **Filter & Search** - Use difficulty filters and bookmarks to focus your study
+8. **Switch Themes** - Toggle between dark and light mode
 
 ---
 
@@ -126,28 +126,37 @@ npm run preview
 
 ## 📝 Assignment Compliance
 
-This project fulfills all requirements from the Interactive Question Management Sheet assignment:
+This project fulfills **ALL** requirements from the Interactive Question Management Sheet assignment:
 
 | Requirement | Status |
 |------------|--------|
-| Add/Delete Topics | ✅ |
-| Add/Delete Sub-topics | ✅ |
-| Add/Delete Questions | ✅ |
-| Drag & Drop Reordering | ✅ |
-| React Framework | ✅ |
-| Tailwind CSS | ✅ |
-| Zustand State Management | ✅ |
-| Sample Data Integration | ✅ |
-| Clean & Intuitive UI | ✅ |
-| Bonus Improvements | ✅ (10+ features) |
+| **Create Topics** | ✅ Implemented |
+| **Edit Topics** | ✅ Implemented |
+| **Delete Topics** | ✅ Implemented |
+| **Create Sub-topics** | ✅ Implemented |
+| **Edit Sub-topics** | ✅ Implemented |
+| **Delete Sub-topics** | ✅ Implemented |
+| **Create Questions** | ✅ Implemented |
+| **Edit Questions** | ✅ Implemented |
+| **Delete Questions** | ✅ Implemented |
+| **Drag & Drop Topics** | ✅ Implemented |
+| **Drag & Drop Sub-topics** | ✅ Implemented |
+| **Drag & Drop Questions** | ✅ Implemented |
+| **React Framework** | ✅ React 19.2.4 |
+| **Tailwind CSS** | ✅ Implemented |
+| **Zustand State Management** | ✅ Implemented |
+| **Sample Data Integration** | ✅ Striver SDE Sheet |
+| **Clean & Intuitive UI** | ✅ Glassmorphism Design |
+| **Bonus Improvements** | ✅ 10+ Additional Features |
+
+### ✨ 100% Requirement Coverage + Extensive Bonus Features
 
 ---
 
 ## 🐛 Known Issues
 
-- Edit functionality for topics/sub-topics not yet implemented
-- Drag & drop limited to topics only (sub-topics/questions coming soon)
-- API integration uses local state (no backend calls)
+- API integration uses local state (no backend calls to provided endpoint)
+- Chart visualization in analytics dashboard is a placeholder
 
 ---
 
@@ -159,10 +168,10 @@ This project is licensed under the MIT License.
 
 ## 📧 Contact
 
-**Developer**: [Your Name]  
-**Email**: your.email@example.com  
-**GitHub**: [@yourusername](https://github.com/yourusername)  
-**LinkedIn**: [Your Profile](https://linkedin.com/in/yourprofile)
+**Developer**: Raghu 
+**Email**: raghu.p0808@example.com  
+**GitHub**: [@KiritoReborn](https://github.com/KiritoReborn)  
+**LinkedIn**: [Your Profile](https://linkedin.com/in/jaya-raghunandhan-reddy-p-2006aug)
 
 ---
 
