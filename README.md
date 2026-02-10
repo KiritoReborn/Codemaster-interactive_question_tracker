@@ -107,10 +107,10 @@ npm run preview
 ## 📸 Screenshots
 
 ### Main Dashboard
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard.png)
+![Dashboard](screenshots/Dashboard.png)
 
 ### AI Chatbot
-![Chatbot](https://via.placeholder.com/800x400?text=ChatBot.png)
+![AI Chatbot](screenshots/ChatBot.png)
 
 ---
 
