@@ -51,7 +51,7 @@ export const ChatBot: React.FC = () => {
       try {
         const ai = new GoogleGenAI({ apiKey });
         chatSessionRef.current = ai.chats.create({
-          model: 'gemini-3-pro-preview',
+          model: 'gemini-2.5-flash-lite',
           config: {
             systemInstruction: "You are an expert Senior Software Engineer and competitive programmer. You help users solve DSA problems, explain concepts (like Arrays, Linked Lists, DP, Graphs), and provide hints without giving away the direct code unless asked. You are integrated into an application called 'CodeMaster', a DSA tracking sheet. Be concise, encouraging, and use markdown for code snippets.",
           }
